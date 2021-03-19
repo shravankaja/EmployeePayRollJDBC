@@ -14,7 +14,7 @@ public class EmployeePayRollServiceTest {
         String jdbcURL = "jdbc:mysql://localhost:3306/payroll_services?useSSL=false";
         String userName = "root";
         String password = "Addtexthere25";
-        Connection result = employeePayRollService.connectToDatabase(jdbcURL, userName, password);
+        Connection result = EmployeePayRollDBService.getInstance().connectToDatabase();
         Assertions.assertEquals("com.mysql.jdbc.JDBC4Connection@34251ec", result);
     }
 
@@ -24,15 +24,25 @@ public class EmployeePayRollServiceTest {
         ArrayList<String> listOfDriversTest = new ArrayList<>();
         listOfDriversTest.add("com.mysql.jdbc.Driver");
         listOfDriversTest.add("com.mysql.fabric.jdbc.FabricMySQLDriver");
-        Assertions.assertEquals(listOfDriversTest, employeePayRollService.listDrivers());
+        Assertions.assertEquals(listOfDriversTest, EmployeePayRollDBService.getInstance().listDrivers());
     }
 
     @Test
     void givenDataBaseTableWeShouldBeAbleToReadAllTheRecords() {
-        String jdbcURL = "jdbc:mysql://localhost:3306/employee_payroll_service?allowPublicKeyRetrieval=true&useSSL=false";
-        String userName = "root";
-        String password = "Addtexthere25";
-        ArrayList<EmployeePayRollService> result = employeePayRollService.readData(jdbcURL, userName, password);
+        ArrayList<EmployeePayRollService> result = employeePayRollService.readData();
         Assertions.assertEquals(3, result.size());
+    }
+
+    @Test
+    void givenNameAndSalaryWeShouldBeAbleToUpdateRecordAndReturnNumberOfRecordsUpdated() throws EmployeePayRollException {
+        Assertions.assertEquals(1, employeePayRollService.updateSalary("Shravan1", 300000));
+    }
+
+    @Test
+    void givenNewSalaryObjectInDataBaseAndProgramMemoryShouldBeSame() throws EmployeePayRollException {
+        ArrayList<EmployeePayRollService> list = employeePayRollService.readData();
+        employeePayRollService.updateSalary("Shravan", 1500);
+        boolean result = employeePayRollService.checkIfDBIsInSyncWithMemory("Shravan");
+        Assertions.assertTrue(result);
     }
 }
