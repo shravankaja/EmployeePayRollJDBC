@@ -3,6 +3,7 @@ package com.employeepayrolljdbc;
 import org.junit.jupiter.api.*;
 
 import java.sql.*;
+import java.time.*;
 import java.util.*;
 
 public class EmployeePayRollServiceTest {
@@ -55,5 +56,13 @@ public class EmployeePayRollServiceTest {
     @Test
     void givenOperationToPerformOnSalaryAccordingToGender() {
         Assertions.assertEquals(49000.0, employeePayRollService.performOperationOnSalaryOfEmployees("avg"));
+    }
+
+    @Test
+    void givenNewEmployeeRecordWeShouldBeAbleToAddNewRecordToDB() throws EmployeePayRollException {
+        Assertions.assertEquals(1, employeePayRollService.
+                addNewEmployeeRecordToDB(126, "Marcqus", 47999, "M", "2018-03-02"));
+        boolean result = employeePayRollService.checkIfDBIsInSyncWithMemory("Marcqus");
+        Assertions.assertTrue(result);
     }
 }
