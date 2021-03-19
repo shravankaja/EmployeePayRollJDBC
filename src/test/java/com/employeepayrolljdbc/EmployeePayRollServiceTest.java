@@ -45,4 +45,10 @@ public class EmployeePayRollServiceTest {
         boolean result = employeePayRollService.checkIfDBIsInSyncWithMemory("Shravan");
         Assertions.assertTrue(result);
     }
+
+    @Test
+    void givenDataRangeWeShouldBeAbleToFindAllTheEmployessJoined() throws EmployeePayRollException {
+        Assertions.assertEquals(3, employeePayRollService.
+                findEmployeesJoinedInDateRange("2018-01-01", "2018-12-12"));
+    }
 }
