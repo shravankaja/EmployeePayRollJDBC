@@ -1,5 +1,6 @@
 package com.employeepayrolljdbc;
 
+import java.awt.desktop.*;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
@@ -165,5 +166,42 @@ public class EmployeePayRollDBService {
                 ")", id, name, salary, gender, date);
         return this.executeQueryAndReturnNumberORecordsChanged(sql);
 
+    }
+
+    public int enterNewRecordInEmployeeAndPayrollTablesAtSameTime(String name, int salary, String gender, String date) {
+        int result = 0;
+        int employeeID = 0;
+        Connection connection;
+        Statement statement = null;
+        try {
+            connection = this.connectToDatabase();
+            statement = connection.createStatement();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String sql = String.format("insert into employee_payroll (name,salary,gender,start) " +
+                "values ('%s',%d,'%s',cast('%s' as date)" +
+                ")", name, salary, gender, date);
+        try {
+            result = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
+            ResultSet resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()) employeeID = resultSet.getInt(1);
+            System.out.println("auto generated :" + employeeID);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        try {
+            double deductions = salary * 0.2;
+            double taxable_pay = salary - deductions;
+            double tax = taxable_pay * 0.1;
+            double net_pay = salary - tax;
+            String sqlTwo = String.format("insert into payroll_details (id,basic_pay,taxable_pay,tax,net_pay) " +
+                    "values (%s,%s,%s,%s,%s)", employeeID, salary, taxable_pay, tax, net_pay);
+            int resultTwo = statement.executeUpdate(sqlTwo);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return result;
     }
 }
