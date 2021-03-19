@@ -51,4 +51,9 @@ public class EmployeePayRollServiceTest {
         Assertions.assertEquals(3, employeePayRollService.
                 findEmployeesJoinedInDateRange("2018-01-01", "2018-12-12"));
     }
+
+    @Test
+    void givenOperationToPerformOnSalaryAccordingToGender() {
+        Assertions.assertEquals(49000.0, employeePayRollService.performOperationOnSalaryOfEmployees("avg"));
+    }
 }
