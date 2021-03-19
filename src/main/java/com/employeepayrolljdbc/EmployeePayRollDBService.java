@@ -175,6 +175,7 @@ public class EmployeePayRollDBService {
         Statement statement = null;
         try {
             connection = this.connectToDatabase();
+            connection.setAutoCommit(false);
             statement = connection.createStatement();
         } catch (Exception e) {
             e.printStackTrace();
@@ -190,6 +191,11 @@ public class EmployeePayRollDBService {
             System.out.println("auto generated :" + employeeID);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         try {
             double deductions = salary * 0.2;
@@ -199,6 +205,16 @@ public class EmployeePayRollDBService {
             String sqlTwo = String.format("insert into payroll_details (id,basic_pay,taxable_pay,tax,net_pay) " +
                     "values (%s,%s,%s,%s,%s)", employeeID, salary, taxable_pay, tax, net_pay);
             int resultTwo = statement.executeUpdate(sqlTwo);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            connection.commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         } finally {
