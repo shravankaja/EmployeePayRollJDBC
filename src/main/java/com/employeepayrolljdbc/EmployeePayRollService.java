@@ -45,8 +45,9 @@ public class EmployeePayRollService {
         return this.listOfEmployeeObjects.stream().filter(e -> e.getName().equals(name)).findFirst().orElse(null);
     }
 
-    public boolean checkIfDBIsInSyncWithMemory(String name) {
+    public boolean checkIfDBIsInSyncWithMemory(String name) throws EmployeePayRollException {
         ArrayList<EmployeePayRollService> list = EmployeePayRollDBService.getInstance().getDataFromEmployeePayRollTable(name);
+        if(list == null) throw new EmployeePayRollException("No record with given name");
         return list.get(0).equals(this.getEmployeeObject(name));
     }
 
