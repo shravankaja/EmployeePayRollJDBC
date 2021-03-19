@@ -171,7 +171,7 @@ public class EmployeePayRollDBService {
     public int enterNewRecordInEmployeeAndPayrollTablesAtSameTime(String name, int salary, String gender, String date) {
         int result = 0;
         int employeeID = 0;
-        Connection connection;
+        Connection connection = null;
         Statement statement = null;
         try {
             connection = this.connectToDatabase();
@@ -201,6 +201,14 @@ public class EmployeePayRollDBService {
             int resultTwo = statement.executeUpdate(sqlTwo);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
         }
         return result;
     }
