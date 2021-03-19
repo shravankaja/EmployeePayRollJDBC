@@ -71,6 +71,13 @@ public class EmployeePayRollService {
         return result;
     }
 
+    public int addNewRecordToBothEmployeeAndPayrollTable(String name, int salary, String gender, String date) {
+        int result = EmployeePayRollDBService.getInstance()
+                .enterNewRecordInEmployeeAndPayrollTablesAtSameTime(name, salary, gender, date);
+        this.readData();
+        return result;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
