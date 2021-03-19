@@ -124,4 +124,19 @@ public class EmployeePayRollDBService {
         }
         return 0;
     }
+
+    public ArrayList<EmployeePayRollService> findEmployesJoinesForDateRange(String dateStart, String dateEnd) {
+        ArrayList<EmployeePayRollService> list = new ArrayList<>();
+        String sql = String.format("select * from employee_payroll where start between cast('%s' as date) " +
+                "and cast('%s' as date)", dateStart, dateEnd);
+        try {
+            Connection connection = this.connectToDatabase();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            list = this.getListFromResultSet(resultSet);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return list;
+    }
 }
