@@ -47,8 +47,15 @@ public class EmployeePayRollService {
 
     public boolean checkIfDBIsInSyncWithMemory(String name) throws EmployeePayRollException {
         ArrayList<EmployeePayRollService> list = EmployeePayRollDBService.getInstance().getDataFromEmployeePayRollTable(name);
-        if(list == null) throw new EmployeePayRollException("No record with given name");
+        if (list == null) throw new EmployeePayRollException("No record with given name");
         return list.get(0).equals(this.getEmployeeObject(name));
+    }
+
+    public int findEmployeesJoinedInDateRange(String dateStart, String dateEnd) throws EmployeePayRollException {
+        ArrayList<EmployeePayRollService> list = EmployeePayRollDBService.getInstance()
+                .findEmployesJoinesForDateRange(dateStart, dateEnd);
+        if (list == null) throw new EmployeePayRollException("No records");
+        return list.size();
     }
 
     @Override
