@@ -61,8 +61,18 @@ public class EmployeePayRollServiceTest {
     @Test
     void givenNewEmployeeRecordWeShouldBeAbleToAddNewRecordToDB() throws EmployeePayRollException {
         Assertions.assertEquals(1, employeePayRollService.
-                addNewEmployeeRecordToDB(126, "Marcqus", 47999, "M", "2018-03-02"));
+                addNewEmployeeRecordToDB(127, "Marcqus", 47999, "M", "2018-03-02"));
         boolean result = employeePayRollService.checkIfDBIsInSyncWithMemory("Marcqus");
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    void givenNewRecordIdShouldBeAutoGnerratedAndPayrollTableShouldGetPoplatedWithFormulatedValues()
+            throws EmployeePayRollException {
+        Assertions.assertEquals(1, employeePayRollService
+                .addNewRecordToBothEmployeeAndPayrollTable("Ram", 24000, "M", "2018-06-02"));
+        employeePayRollService.readData();
+        boolean result = employeePayRollService.checkIfDBIsInSyncWithMemory("Ram");
         Assertions.assertTrue(result);
     }
 }
