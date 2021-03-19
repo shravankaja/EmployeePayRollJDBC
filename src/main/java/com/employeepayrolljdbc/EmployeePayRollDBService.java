@@ -119,10 +119,10 @@ public class EmployeePayRollDBService {
     public ArrayList<EmployeePayRollService> findEmployesJoinesForDateRange(String dateStart, String dateEnd) {
         String sql = String.format("select * from employee_payroll where start between cast('%s' as date) " +
                 "and cast('%s' as date)", dateStart, dateEnd);
-            return this.executeSqlAndReturnList(sql);
+        return this.executeSqlAndReturnList(sql);
     }
 
-    public ArrayList<EmployeePayRollService> executeSqlAndReturnList (String sql) {
+    public ArrayList<EmployeePayRollService> executeSqlAndReturnList(String sql) {
         ArrayList<EmployeePayRollService> list = new ArrayList<>();
         try {
             Connection connection = this.connectToDatabase();
@@ -133,5 +133,24 @@ public class EmployeePayRollDBService {
             throwables.printStackTrace();
         }
         return list;
+    }
+
+    public HashMap<String, Integer> performOperationsOnSalaryOf(String operation) {
+        HashMap<String, Integer> resultList = new HashMap<>();
+        String sql = String.format("select gender,%s(salary) from employee_payroll group by gender", operation);
+        try {
+            Connection connection = this.connectToDatabase();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                String gender = resultSet.getString("gender");
+                String coloumnName = operation + "(salary)";
+                int salary = resultSet.getInt(coloumnName);
+                resultList.put(gender, salary);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return resultList;
     }
 }
