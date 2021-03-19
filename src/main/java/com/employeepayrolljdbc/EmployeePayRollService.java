@@ -1,5 +1,6 @@
 package com.employeepayrolljdbc;
 
+import javax.print.attribute.*;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
@@ -56,6 +57,12 @@ public class EmployeePayRollService {
                 .findEmployesJoinesForDateRange(dateStart, dateEnd);
         if (list == null) throw new EmployeePayRollException("No records");
         return list.size();
+    }
+
+    public int performOperationOnSalaryOfEmployees(String operation) {
+        HashMap<String, Integer> resultMap = EmployeePayRollDBService.getInstance().performOperationsOnSalaryOf(operation);
+        int result = resultMap.get("F");
+        return result;
     }
 
     @Override
