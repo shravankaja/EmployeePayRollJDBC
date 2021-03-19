@@ -65,16 +65,7 @@ public class EmployeePayRollDBService {
     public ArrayList<EmployeePayRollService> readData() {
         ArrayList<EmployeePayRollService> listOfDataObjects = new ArrayList<>();
         String sql = "select * from employee_payroll";
-        try {
-            Connection connection = this.connectToDatabase();
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-            listOfDataObjects = this.getListFromResultSet(resultSet);
-            connection.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return listOfDataObjects;
+        return this.executeSqlAndReturnList(sql);
     }
 
     // Connection connection;  //database connection
@@ -126,9 +117,13 @@ public class EmployeePayRollDBService {
     }
 
     public ArrayList<EmployeePayRollService> findEmployesJoinesForDateRange(String dateStart, String dateEnd) {
-        ArrayList<EmployeePayRollService> list = new ArrayList<>();
         String sql = String.format("select * from employee_payroll where start between cast('%s' as date) " +
                 "and cast('%s' as date)", dateStart, dateEnd);
+            return this.executeSqlAndReturnList(sql);
+    }
+
+    public ArrayList<EmployeePayRollService> executeSqlAndReturnList (String sql) {
+        ArrayList<EmployeePayRollService> list = new ArrayList<>();
         try {
             Connection connection = this.connectToDatabase();
             Statement statement = connection.createStatement();
