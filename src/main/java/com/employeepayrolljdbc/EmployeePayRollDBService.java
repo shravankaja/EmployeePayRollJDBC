@@ -106,6 +106,10 @@ public class EmployeePayRollDBService {
 
     public int updateSalary(String name, int salary) {
         String sql = String.format("update  employee_payroll set salary=%d where name='%s'", salary, name);
+        return this.executeQueryAndReturnNumberORecordsChanged(sql);
+    }
+
+    public int executeQueryAndReturnNumberORecordsChanged(String sql) {
         try {
             Connection connection = this.connectToDatabase();
             Statement statement = connection.createStatement();
@@ -114,6 +118,7 @@ public class EmployeePayRollDBService {
             throwables.printStackTrace();
         }
         return 0;
+
     }
 
     public ArrayList<EmployeePayRollService> findEmployesJoinesForDateRange(String dateStart, String dateEnd) {
@@ -152,5 +157,13 @@ public class EmployeePayRollDBService {
             throwables.printStackTrace();
         }
         return resultList;
+    }
+
+    public int enterNewRecordToDB(int id, String name, int salary, String gender, String date) {
+        String sql = String.format("insert into employee_payroll (id,name,salary,gender,start) " +
+                "values (%d,'%s',%d,'%s',cast('%s' as date)" +
+                ")", id, name, salary, gender, date);
+        return this.executeQueryAndReturnNumberORecordsChanged(sql);
+
     }
 }
