@@ -65,6 +65,12 @@ public class EmployeePayRollService {
         return result;
     }
 
+    public int addNewEmployeeRecordToDB(int id, String name, int salary, String gender, String date) {
+        int result = EmployeePayRollDBService.getInstance().enterNewRecordToDB(id, name, salary, gender, date);
+        this.readData();
+        return result;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
