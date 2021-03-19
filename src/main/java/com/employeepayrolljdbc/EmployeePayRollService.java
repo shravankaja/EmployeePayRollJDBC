@@ -10,6 +10,7 @@ public class EmployeePayRollService {
     LocalDate startDate;
     int salary;
     int id;
+    ArrayList<EmployeePayRollService> listOfEmployeeObjects;
 
     public EmployeePayRollService() {
 
@@ -20,72 +21,41 @@ public class EmployeePayRollService {
         this.startDate = startDate;
         this.salary = salary;
         this.id = id;
+        listOfEmployeeObjects = new ArrayList<>();
     }
 
-    public ArrayList<EmployeePayRollService> readData(String url, String userName, String password) {
-        ArrayList<EmployeePayRollService> listOfDataObjects = new ArrayList<>();
-        String sql = "select * from employee_payroll";
-        try {
-            Connection connection = this.connectToDatabase(url, userName, password);
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                int salary = resultSet.getInt("salary");
-                LocalDate startdate = resultSet.getDate("start").toLocalDate();
-                listOfDataObjects.add(new EmployeePayRollService(name, startdate, salary, id));
-            }
-            connection.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return listOfDataObjects;
+    public String getName() {
+        return name;
     }
 
-    // Connection connection;  //database connection
-    public Connection connectToDatabase(String url, String userName, String password) {
-        Connection connection = null;  //database connection
-        String connectionString = null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            System.out.println("Driver loaded");
-
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("No drivers loaded ", e);
-        }
-        try {
-            System.out.println("Connectin to " + url);
-            connection = DriverManager.getConnection(url, userName, password);
-            System.out.println(connection);
-            connectionString = connection.toString();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return connection;
+    public ArrayList<EmployeePayRollService> readData() {
+        this.listOfEmployeeObjects = EmployeePayRollDBService.getInstance().readData();
+        return this.listOfEmployeeObjects;
     }
 
-    public ArrayList<String> listDrivers() {
-        Enumeration<Driver> driverList = DriverManager.getDrivers();
-        ArrayList<String> listOfDrivers = new ArrayList<>();
-        while (driverList.hasMoreElements()) {
-            Driver driver = (Driver) driverList.nextElement();
-            System.out.println("  " + driver.getClass().getName());
-            listOfDrivers.add(driver.getClass().getName());
-        }
-        return listOfDrivers;
+    public int updateSalary(String name, int salary) throws EmployeePayRollException {
+        int a = EmployeePayRollDBService.getInstance().updateSalary(name, salary);
+        if (a == 0) throw new EmployeePayRollException("No records with given name");
+        EmployeePayRollService employeePayRollService = this.getEmployeeObject(name);
+        if (employeePayRollService != null) employeePayRollService.salary = salary;
+        return a;
     }
 
-    public static void main(String Args[]) {
-        System.out.println("Welcome to payroll service");
-        // localhost is the server name where database exsists or it can be IP address
-        // 3306 is the port number , payroll_services is the database name
-        String jdbcURL = "jdbc:mysql://localhost:3306/employee_payroll_service?allowPublicKeyRetrieval=true&useSSL=false";
-        String userName = "root";
-        String password = "Addtexthere25";
-        EmployeePayRollService employeePayRollService = new EmployeePayRollService();
-        employeePayRollService.connectToDatabase(jdbcURL, userName, password);
-        employeePayRollService.listDrivers();
+    public EmployeePayRollService getEmployeeObject(String name) {
+        return this.listOfEmployeeObjects.stream().filter(e -> e.getName().equals(name)).findFirst().orElse(null);
+    }
+
+    public boolean checkIfDBIsInSyncWithMemory(String name) {
+        ArrayList<EmployeePayRollService> list = EmployeePayRollDBService.getInstance().getDataFromEmployeePayRollTable(name);
+        return list.get(0).equals(this.getEmployeeObject(name));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EmployeePayRollService that = (EmployeePayRollService) o;
+        return id == that.id && Integer.compare(that.salary, salary) == 0 && name.equals(that.name);
     }
 }
 
