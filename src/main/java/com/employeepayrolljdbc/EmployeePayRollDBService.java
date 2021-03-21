@@ -279,6 +279,7 @@ public class EmployeePayRollDBService {
                 }
             }
         }
+
         return result;
     }
 
@@ -322,5 +323,18 @@ public class EmployeePayRollDBService {
             throwables.printStackTrace();
         }
         return resultList;
+    }
+
+    public int deleteRecordOnCaascade(int employeeID) {
+        int result = 0;
+        String sql = String.format("delete from employee_details where employee_id = %s", employeeID);
+        try {
+            Connection connection = this.connectToDatabase();
+            Statement statement = connection.createStatement();
+            result = statement.executeUpdate(sql);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return result;
     }
 }
