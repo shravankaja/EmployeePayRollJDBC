@@ -1,89 +1,94 @@
 package com.employeepayrolljdbc;
 
-import javax.print.attribute.*;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
 
 public class EmployeePayRollService {
-
     String name;
     LocalDate startDate;
     int salary;
     int id;
+    String departmentName;
+    int departmentID;
+    double phone;
+    String companyName;
+    String street_name;
+    String state;
+    String city;
+    String country;
+    int zip;
+    String addressType;
+    String gender;
+    int houseNo;
+
+    ArrayList<ArrayList<HashMap<Integer, List<EmployeePayRollService>>>> nestedList = new ArrayList<>();
     ArrayList<EmployeePayRollService> listOfEmployeeObjects;
+    ArrayList<EmployeePayRollService> listOfEmployeeAddress;
+    ArrayList<EmployeePayRollService> listOfCompany;
+    ArrayList<EmployeePayRollService> listOfEmployeeDepartments;
+    ArrayList<EmployeePayRollService> listOfDepartments;
 
     public EmployeePayRollService() {
 
     }
 
-    public EmployeePayRollService(String name, LocalDate startDate, int salary, int id) {
+    EmployeePayRollDBService employeePayRollDBService = new EmployeePayRollDBService();
+
+    public EmployeePayRollService(String street_name, String state, String city, String country, int zip, int id, String
+            addressType, int houseNo) {
+        this.street_name = street_name;
+        this.state = state;
+        this.city = city;
+        this.country = country;
+        this.zip = zip;
+        this.id = id;
+        this.addressType = addressType;
+        this.houseNo = houseNo;
+        listOfEmployeeAddress = new ArrayList<>();
+    }
+
+    public EmployeePayRollService(int id, String companyName) {
+        this.id = id;
+        this.companyName = companyName;
+        listOfCompany = new ArrayList<>();
+    }
+
+    public EmployeePayRollService(String departmentName, int departmentID) {
+        this.departmentName = departmentName;
+        this.departmentID = departmentID;
+        listOfDepartments = new ArrayList<>();
+    }
+
+    public EmployeePayRollService(int id, int departmentID) {
+        this.id = id;
+        this.departmentID = departmentID;
+        listOfEmployeeDepartments = new ArrayList<>();
+    }
+
+    public EmployeePayRollService(String name, double phone, LocalDate startDate, int salary, int id, String gender) {
         this.name = name;
         this.startDate = startDate;
         this.salary = salary;
         this.id = id;
+        this.phone = phone;
+        this.gender = gender;
         listOfEmployeeObjects = new ArrayList<>();
     }
 
-    public String getName() {
-        return name;
+    public int readData() {
+        ArrayList<HashMap<Integer, List<EmployeePayRollService>>> nestedList = new ArrayList<>();
+        nestedList = employeePayRollDBService.readData();
+        return employeePayRollDBService.noOfEmployees;
     }
 
-    public ArrayList<EmployeePayRollService> readData() {
-        this.listOfEmployeeObjects = EmployeePayRollDBService.getInstance().readData();
-        return this.listOfEmployeeObjects;
-    }
-
-    public int updateSalary(String name, int salary) throws EmployeePayRollException {
-        int a = EmployeePayRollDBService.getInstance().updateSalary(name, salary);
-        if (a == 0) throw new EmployeePayRollException("No records with given name");
-        EmployeePayRollService employeePayRollService = this.getEmployeeObject(name);
-        if (employeePayRollService != null) employeePayRollService.salary = salary;
-        return a;
-    }
-
-    public EmployeePayRollService getEmployeeObject(String name) {
-        return this.listOfEmployeeObjects.stream().filter(e -> e.getName().equals(name)).findFirst().orElse(null);
-    }
-
-    public boolean checkIfDBIsInSyncWithMemory(String name) throws EmployeePayRollException {
-        ArrayList<EmployeePayRollService> list = EmployeePayRollDBService.getInstance().getDataFromEmployeePayRollTable(name);
-        if (list == null) throw new EmployeePayRollException("No record with given name");
-        return list.get(0).equals(this.getEmployeeObject(name));
-    }
-
-    public int findEmployeesJoinedInDateRange(String dateStart, String dateEnd) throws EmployeePayRollException {
-        ArrayList<EmployeePayRollService> list = EmployeePayRollDBService.getInstance()
-                .findEmployesJoinesForDateRange(dateStart, dateEnd);
-        if (list == null) throw new EmployeePayRollException("No records");
-        return list.size();
-    }
-
-    public int performOperationOnSalaryOfEmployees(String operation) {
-        HashMap<String, Integer> resultMap = EmployeePayRollDBService.getInstance().performOperationsOnSalaryOf(operation);
-        int result = resultMap.get("F");
-        return result;
-    }
-
-    public int addNewEmployeeRecordToDB(int id, String name, int salary, String gender, String date) {
-        int result = EmployeePayRollDBService.getInstance().enterNewRecordToDB(id, name, salary, gender, date);
-        this.readData();
-        return result;
-    }
-
-    public int addNewRecordToBothEmployeeAndPayrollTable(String name, int salary, String gender, String date) {
-        int result = EmployeePayRollDBService.getInstance()
-                .enterNewRecordInEmployeeAndPayrollTablesAtSameTime(name, salary, gender, date);
-        this.readData();
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EmployeePayRollService that = (EmployeePayRollService) o;
-        return id == that.id && Integer.compare(that.salary, salary) == 0 && name.equals(that.name);
+    public int writeData(String name, double phone, String startDate, int salary, String gender,
+                         String departmentName, int departmentID, String companyName,
+                         String street_name, String state, String city, String country, int zip, String
+                                 addressType, int houseNo) throws SQLException, EmployeePayRollException {
+        return employeePayRollDBService.entryOfNewEmployeeDetails("Tavan", 123456,
+                "2018-02-01", 55000, "M", "Development", 123, "TCS",
+                "RamNagar", "Tealanagan", "Hydderabad", "India", 50074, "Home", 456);
     }
 }
 
