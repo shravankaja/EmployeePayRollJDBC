@@ -108,6 +108,10 @@ public class EmployeePayRollService {
         HashMap<String, Integer> list = employeePayRollDBService.performOperationsOnSalaryOf(operaation);
         return list;
     }
+
+    public int deleteARecordromDatabase(int employee_id) {
+        return employeePayRollDBService.deleteRecordOnCaascade(employee_id);
+    }
 }
 
 
