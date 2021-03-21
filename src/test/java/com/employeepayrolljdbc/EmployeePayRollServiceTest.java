@@ -60,4 +60,9 @@ public class EmployeePayRollServiceTest {
         int result = list.get("M");
         Assertions.assertEquals(54629, result);
     }
+
+    @Test
+    void deleteRecordFromDatabase() {
+        Assertions.assertEquals(1, employeePayRollService.deleteARecordromDatabase(39));
+    }
 }
