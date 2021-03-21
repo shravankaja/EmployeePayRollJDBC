@@ -34,10 +34,30 @@ public class EmployeePayRollServiceTest {
     }
 
     @Test
-    void add() throws SQLException, EmployeePayRollException {
+    void addNewRecord() throws SQLException, EmployeePayRollException {
         EmployeePayRollDBService employeePayRollDBService = new EmployeePayRollDBService();
         Assertions.assertEquals(6, employeePayRollService.writeData("Tavan", 123456,
                 "2018-02-01", 55000, "M", "Development", 123, "TCS",
                 "RamNagar", "Tealanagan", "Hydderabad", "India", 50074, "Home", 456));
+    }
+
+    @Test
+    void givenStringValueAndTableNameWeShouleBeAbleToGetNumberOfRowsUpdated() throws EmployeePayRollException {
+        Assertions.assertEquals(1, employeePayRollService.upateRecord(41, "19971",
+                "address", "zip"));
+    }
+
+    @Test
+    void givenStartDateFindNumberOfEmployeesJoined() {
+        Assertions.assertEquals(31, employeePayRollDBService
+                .findEmployeesJoinedInSpecificDateRange("2018-01-01"));
+    }
+
+    @Test
+    void givenOperationWeShouldBeAbleToGetResultAccordingtoGender() {
+        HashMap<String, Integer> list = employeePayRollService
+                .returnResultOfOperationPerformedOnSalaryBasedOnGender("avg");
+        int result = list.get("M");
+        Assertions.assertEquals(54629, result);
     }
 }
