@@ -18,6 +18,46 @@ public class EmployeePayRollDBService {
     }
 
     // method to create a new singleton object
+    public static EmployeePayRollDBService getInstance() {
+        if (employeePayRollDBService == null) {
+            employeePayRollDBService = new EmployeePayRollDBService();
+        }
+        return employeePayRollDBService;
+    }
+
+    private void preparedStatementForUpdates(String tableName, String columnToBeUpdated) {
+        try {
+            Connection connection = this.connectToDatabase();
+            String sql = String.format("update %s set %s = ? where employee_id=?", tableName, columnToBeUpdated);
+            getEmployeePayRollData = connection.prepareStatement(sql);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public int updateEmployeeDatabase(int employeeID, String value, String tableName, String columnToBeUpdated) {
+        int noOfRowsAffected = 0;
+        if (getEmployeePayRollData == null) this.preparedStatementForUpdates(tableName, columnToBeUpdated);
+        try {
+            if (isNumeric(value)) {
+                int valueInt = Integer.parseInt(value);
+                getEmployeePayRollData.setInt(1, valueInt);
+                getEmployeePayRollData.setInt(2, employeeID);
+                noOfRowsAffected = getEmployeePayRollData.executeUpdate();
+            } else if (!isNumeric(value)) {
+                getEmployeePayRollData.setString(1, value);
+                getEmployeePayRollData.setInt(2, employeeID);
+                noOfRowsAffected = getEmployeePayRollData.executeUpdate();
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return noOfRowsAffected;
+    }
+
+    public boolean isNumeric(String s) {
+        return s != null && s.matches("[-+]?\\d*\\.?\\d+");
+    }
 
     public ArrayList<HashMap<Integer, List<EmployeePayRollService>>> readData() {
         ArrayList<EmployeePayRollService> listOfDataObjects = new ArrayList<>();
@@ -240,5 +280,47 @@ public class EmployeePayRollDBService {
             }
         }
         return result;
+    }
+
+    public int findEmployeesJoinedInSpecificDateRange(String startDate) {
+        int numberOfEmployees = 0;
+        ArrayList<String> namesOfEmployees = new ArrayList<>();
+        try {
+            Connection connection = this.connectToDatabase();
+            Statement statement = connection.createStatement();
+            String sql = String.format("select * from employee_details where start_date between cast('%s' as date) and " +
+                    "date(now())" +
+                    "", startDate);
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                namesOfEmployees.add(name);
+            }
+            numberOfEmployees = namesOfEmployees.size();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return numberOfEmployees;
+    }
+
+    public HashMap<String, Integer> performOperationsOnSalaryOf(String operation) {
+        HashMap<String, Integer> resultList = new HashMap<>();
+        String sql = String.format(" select gender,%s(salary) from payroll as p " +
+                        "inner join employee_details as e on p.employee_id=e.employee_id group by gender"
+                , operation);
+        try {
+            Connection connection = this.connectToDatabase();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                String gender = resultSet.getString("gender");
+                String coloumnName = operation + "(salary)";
+                int salary = resultSet.getInt(coloumnName);
+                resultList.put(gender, salary);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return resultList;
     }
 }
