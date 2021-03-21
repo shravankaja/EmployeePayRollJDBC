@@ -90,6 +90,24 @@ public class EmployeePayRollService {
                 "2018-02-01", 55000, "M", "Development", 123, "TCS",
                 "RamNagar", "Tealanagan", "Hydderabad", "India", 50074, "Home", 456);
     }
+
+    public int upateRecord(int employeeID, String value, String tableName, String columnToBeUpdated) throws EmployeePayRollException {
+        int result = EmployeePayRollDBService.getInstance()
+                .updateEmployeeDatabase(employeeID, value, tableName, columnToBeUpdated);
+        if (result == 0) throw new EmployeePayRollException("No records");
+        return result;
+    }
+
+    public int returnNumberOfEmployeesJoinedInSpeciicDateRange(String startDate) throws EmployeePayRollException {
+        int result = employeePayRollDBService.findEmployeesJoinedInSpecificDateRange(startDate);
+        if (result == 0) throw new EmployeePayRollException("No records");
+        return result;
+    }
+
+    public HashMap<String, Integer> returnResultOfOperationPerformedOnSalaryBasedOnGender(String operaation) {
+        HashMap<String, Integer> list = employeePayRollDBService.performOperationsOnSalaryOf(operaation);
+        return list;
+    }
 }
 
 
