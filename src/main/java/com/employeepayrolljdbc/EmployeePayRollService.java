@@ -6,7 +6,7 @@ import java.util.*;
 
 public class EmployeePayRollService {
     String name;
-    LocalDate startDate;
+    String startDate;
     int salary;
     int id;
     String departmentName;
@@ -66,7 +66,7 @@ public class EmployeePayRollService {
         listOfEmployeeDepartments = new ArrayList<>();
     }
 
-    public EmployeePayRollService(String name, double phone, LocalDate startDate, int salary, int id, String gender) {
+    public EmployeePayRollService(String name, double phone, String startDate, int salary, int id, String gender) {
         this.name = name;
         this.startDate = startDate;
         this.salary = salary;
@@ -74,6 +74,26 @@ public class EmployeePayRollService {
         this.phone = phone;
         this.gender = gender;
         listOfEmployeeObjects = new ArrayList<>();
+    }
+
+    public EmployeePayRollService(String name, String startDate, int salary, String departmentName, int departmentID,
+                                  double phone, String companyName, String street_name, String state, String city,
+                                  String country, int zip, String addressType, String gender, int houseNo) {
+        this.name = name;
+        this.startDate = startDate;
+        this.salary = salary;
+        this.departmentName = departmentName;
+        this.departmentID = departmentID;
+        this.phone = phone;
+        this.companyName = companyName;
+        this.street_name = street_name;
+        this.state = state;
+        this.city = city;
+        this.country = country;
+        this.zip = zip;
+        this.addressType = addressType;
+        this.gender = gender;
+        this.houseNo = houseNo;
     }
 
     public int readData() {
@@ -86,9 +106,9 @@ public class EmployeePayRollService {
                          String departmentName, int departmentID, String companyName,
                          String street_name, String state, String city, String country, int zip, String
                                  addressType, int houseNo) throws SQLException, EmployeePayRollException {
-        return employeePayRollDBService.entryOfNewEmployeeDetails("Tavan", 123456,
-                "2018-02-01", 55000, "M", "Development", 123, "TCS",
-                "RamNagar", "Tealanagan", "Hydderabad", "India", 50074, "Home", 456);
+        return employeePayRollDBService.entryOfNewEmployeeDetails(name, phone,
+                startDate, salary, gender, departmentName, departmentID, companyName,
+                street_name, state, city, country, zip, addressType, houseNo);
     }
 
     public int upateRecord(int employeeID, String value, String tableName, String columnToBeUpdated) throws EmployeePayRollException {
@@ -110,7 +130,24 @@ public class EmployeePayRollService {
     }
 
     public int deleteARecordromDatabase(int employee_id) {
-        return employeePayRollDBService.deleteRecordOnCaascade(employee_id);
+        return employeePayRollDBService.deleteRecordOnCascade(employee_id);
+    }
+
+    public void  addMultipleEmployees(ArrayList<EmployeePayRollService> employees) {
+    employees.stream().forEach(employeePayRollService -> {
+        try {
+            this.writeData(employeePayRollService.name, employeePayRollService.phone,
+                    employeePayRollService.startDate,employeePayRollService.salary,employeePayRollService.gender,
+                    employeePayRollService.departmentName,employeePayRollService.departmentID,employeePayRollService.companyName,
+                    employeePayRollService.street_name,employeePayRollService.state, employeePayRollService.city, employeePayRollService.country,
+                    employeePayRollService.zip,employeePayRollService.addressType,employeePayRollService.houseNo);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        } catch (EmployeePayRollException e) {
+            e.printStackTrace();
+        }
+    });
+
     }
 }
 
