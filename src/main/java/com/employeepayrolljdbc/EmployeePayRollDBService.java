@@ -10,7 +10,7 @@ import java.util.*;
 
 public class EmployeePayRollDBService {
     int noOfEmployees = 0;
-    private int connectionCounter=0;
+    private int connectionCounter = 0;
     //Defining Singleton object by making a private constructor
     private static EmployeePayRollDBService employeePayRollDBService;
     private PreparedStatement getEmployeePayRollData;
@@ -27,7 +27,7 @@ public class EmployeePayRollDBService {
         return employeePayRollDBService;
     }
 
-    private void preparedStatementForUpdates(String tableName, String columnToBeUpdated) {
+    private synchronized void preparedStatementForUpdates(String tableName, String columnToBeUpdated) {
         try {
             Connection connection = this.connectToDatabase();
             String sql = String.format("update %s set %s = ? where employee_id=? ", tableName, columnToBeUpdated);
@@ -37,7 +37,7 @@ public class EmployeePayRollDBService {
         }
     }
 
-    public int updateEmployeeDatabase(int employeeID, String value, String tableName, String columnToBeUpdated) {
+    public synchronized int updateEmployeeDatabase(int employeeID, String value, String tableName, String columnToBeUpdated) {
         int noOfRowsAffected = 0;
         if (getEmployeePayRollData == null) this.preparedStatementForUpdates(tableName, columnToBeUpdated);
         try {
@@ -132,10 +132,10 @@ public class EmployeePayRollDBService {
             throw new IllegalStateException("No drivers loaded ", e);
         }
         try {
-            System.out.println("Processing threads: "+Thread.currentThread().getName()+" Connecting to database with ID:"+connectionCounter);
+            System.out.println("Processing threads: " + Thread.currentThread().getName() + " Connecting to database with ID:" + connectionCounter);
             System.out.println("Connectin to " + jdbcURL);
             connection = DriverManager.getConnection(jdbcURL, userName, password);
-            System.out.println("Porcessing thread: "+Thread.currentThread().getName()+"Id "+connectionCounter+ "  "+connection);
+            System.out.println("Porcessing thread: " + Thread.currentThread().getName() + "Id " + connectionCounter + "  " + connection);
             System.out.println(connection);
             connectionString = connection.toString();
         } catch (SQLException throwables) {
@@ -363,5 +363,18 @@ public class EmployeePayRollDBService {
             exception.printStackTrace();
         }
         return employees.size();
+    }
+
+    public void getEmployeeObject(int employee_id) {
+        String sql = String.format("select ed.*,p.net_pay,p.taxabale_pay,p.deductions,p.income_tax,edd.department_id," +
+                "c.name,a.street_name,a.house_no,a.state,a.city,a.country,a.zip,a.address_type from employee_details as ed inner join payroll as p on ed.employee_id=p.employee_id   \n" +
+                " inner join employee_departments as edd on ed.employee_id=edd.employee_id inner join company as c on " +
+                "c.employee_id=ed.employee_id inner join address as a on a.employee_id=ed.employee_id  where ed.employee_id = %s" +
+                " having status='Active'", employee_id);
+        ArrayList<HashMap<Integer, List<EmployeePayRollService>>> list = new ArrayList<>();
+        list = this.getListFromResultSet(sql);
+
+        System.out.println(list);
+
     }
 }
