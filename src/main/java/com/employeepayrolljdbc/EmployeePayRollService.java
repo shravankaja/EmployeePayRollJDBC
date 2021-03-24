@@ -133,21 +133,58 @@ public class EmployeePayRollService {
         return employeePayRollDBService.deleteRecordOnCascade(employee_id);
     }
 
-    public void  addMultipleEmployees(ArrayList<EmployeePayRollService> employees) {
-    employees.stream().forEach(employeePayRollService -> {
-        try {
-            this.writeData(employeePayRollService.name, employeePayRollService.phone,
-                    employeePayRollService.startDate,employeePayRollService.salary,employeePayRollService.gender,
-                    employeePayRollService.departmentName,employeePayRollService.departmentID,employeePayRollService.companyName,
-                    employeePayRollService.street_name,employeePayRollService.state, employeePayRollService.city, employeePayRollService.country,
-                    employeePayRollService.zip,employeePayRollService.addressType,employeePayRollService.houseNo);
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-        } catch (EmployeePayRollException e) {
-            e.printStackTrace();
-        }
-    });
+    public void addMultipleEmployees(ArrayList<EmployeePayRollService> employees) {
+        employees.stream().forEach(employeePayRollService -> {
+            try {
+                this.writeData(employeePayRollService.name, employeePayRollService.phone,
+                        employeePayRollService.startDate, employeePayRollService.salary, employeePayRollService.gender,
+                        employeePayRollService.departmentName, employeePayRollService.departmentID, employeePayRollService.companyName,
+                        employeePayRollService.street_name, employeePayRollService.state, employeePayRollService.city, employeePayRollService.country,
+                        employeePayRollService.zip, employeePayRollService.addressType, employeePayRollService.houseNo);
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            } catch (EmployeePayRollException e) {
+                e.printStackTrace();
+            }
+        });
 
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, gender, salary, startDate);
+    }
+
+    public void addMultipleEmployeesWithThreads(ArrayList<EmployeePayRollService> employees) {
+        Map<Integer, Boolean> employeeAdditionStatus = new HashMap<>();
+        employees.stream().forEach(employeePayRollService -> {
+            Runnable task = () -> {
+                employeeAdditionStatus.put(employeePayRollService.hashCode(), false);
+                System.out.println("Employee Beign Added: " + Thread.currentThread().getName());
+                try {
+                    this.writeData(employeePayRollService.name, employeePayRollService.phone,
+                            employeePayRollService.startDate, employeePayRollService.salary, employeePayRollService.gender,
+                            employeePayRollService.departmentName, employeePayRollService.departmentID, employeePayRollService.companyName,
+                            employeePayRollService.street_name, employeePayRollService.state, employeePayRollService.city, employeePayRollService.country,
+                            employeePayRollService.zip, employeePayRollService.addressType, employeePayRollService.houseNo);
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                } catch (EmployeePayRollException e) {
+                    e.printStackTrace();
+                }
+                employeeAdditionStatus.put(employeePayRollService.hashCode(), true);
+                System.out.println("After addition :" + Thread.currentThread().getName());
+            };
+            Thread thread = new Thread(task, employeePayRollService.name);
+            thread.start();
+        });
+        while (employeeAdditionStatus.containsValue(false)) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 
