@@ -5,6 +5,9 @@ import java.time.*;
 import java.util.*;
 
 public class EmployeePayRollService {
+    String value;
+    String columnToBeUpdated;
+    String tableName;
     String name;
     String startDate;
     int salary;
@@ -124,6 +127,13 @@ public class EmployeePayRollService {
         return result;
     }
 
+    public EmployeePayRollService(int id, String value, String tableName, String columnToBeUpdated) {
+        this.id = id;
+        this.value = value;
+        this.tableName = tableName;
+        this.columnToBeUpdated = columnToBeUpdated;
+    }
+
     public HashMap<String, Integer> returnResultOfOperationPerformedOnSalaryBasedOnGender(String operaation) {
         HashMap<String, Integer> list = employeePayRollDBService.performOperationsOnSalaryOf(operaation);
         return list;
@@ -185,6 +195,52 @@ public class EmployeePayRollService {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void updaateMultipleEmployees(ArrayList<EmployeePayRollService> employees) {
+        employees.stream().forEach(employeePayRollService -> {
+            try {
+                this.upateRecord(
+                        employeePayRollService.id, employeePayRollService.value, employeePayRollService.tableName,
+                        employeePayRollService.columnToBeUpdated);
+            } catch (EmployeePayRollException e) {
+                e.printStackTrace();
+            }
+        });
+
+
+    }
+
+    public int updateultipleEmployeesWithThreads(ArrayList<EmployeePayRollService> employees) {
+        int numberOfEmployess = 0;
+        Map<Integer, Boolean> employeeAdditionStatus = new HashMap<>();
+        employees.stream().forEach(employeePayRollService -> {
+            Runnable task = () -> {
+                employeeAdditionStatus.put(employeePayRollService.hashCode(), false);
+                try {
+                    System.out.println("Thread before update : " + Thread.currentThread().getName());
+                    this.upateRecord(
+                            employeePayRollService.id, employeePayRollService.value, employeePayRollService.tableName,
+                            employeePayRollService.columnToBeUpdated);
+                } catch (EmployeePayRollException e) {
+                    e.printStackTrace();
+                }
+                employeeAdditionStatus.put(employeePayRollService.hashCode(), true);
+                System.out.println("After Update :" + Thread.currentThread().getName());
+
+            };
+            Thread thread = new Thread(task, employeePayRollService.tableName);
+            thread.start();
+
+        });
+        while (employeeAdditionStatus.containsValue(false)) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return employees.size();
     }
 }
 
