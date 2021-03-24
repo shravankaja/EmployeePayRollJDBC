@@ -68,25 +68,29 @@ public class EmployeePayRollServiceTest {
     }
 
     @Test
-    void givenMultipleRecordsShouldBeAddedToDatabaseAndRecordTimeWithOutThreading() {
+    void givenMultipleRecordsShouldBeAddedToDatabaseAndRecordTimeWithOutThreadingAndWithThreading() {
         ArrayList<EmployeePayRollService> employees = new ArrayList<>(Arrays.asList(
                 new EmployeePayRollService("Shravan",
                         "2018-02-01", 55000, "Development", 123, 852852933,
-                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad","India",50047, "Home"
-                        ,"M" ,456),
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047, "Home"
+                        , "M", 456),
                 new EmployeePayRollService("James",
                         "2018-02-01", 51000, "Development", 123, 852852933,
-                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad","India",50047, "Home"
-                        ,"M" ,456),
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047, "Home"
+                        , "M", 456),
                 new EmployeePayRollService("Mares",
                         "2018-02-01", 57000, "Development", 123, 852852933,
-                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad","India",50047, "Home"
-                        ,"M" ,456)
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047, "Home"
+                        , "M", 456)
         ));
         Instant start = Instant.now();
         employeePayRollService.addMultipleEmployees(employees);
         Instant end = Instant.now();
-        System.out.println("Duration : "+Duration.between(start,end));
-        Assertions.assertEquals(16,employeePayRollDBService.countNoOfEmployees());
+        System.out.println("Duration : " + Duration.between(start, end));
+        Instant startWithThread = Instant.now();
+        employeePayRollService.addMultipleEmployeesWithThreads(employees);
+        Instant endWithThread = Instant.now();
+        System.out.println("Duration with thread: " + Duration.between(startWithThread, endWithThread));
+        Assertions.assertEquals(7, employeePayRollDBService.countNoOfEmployees());
     }
 }
