@@ -76,8 +76,8 @@ public class EmployeePayRollServiceTest {
                         , "M", 456),
                 new EmployeePayRollService("James",
                         "2018-02-01", 51000, "Development", 123, 852852933,
-                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047, "Home"
-                        , "M", 456),
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047,
+                        "Home", "M", 456),
                 new EmployeePayRollService("Mares",
                         "2018-02-01", 57000, "Development", 123, 852852933,
                         "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047, "Home"
@@ -92,5 +92,22 @@ public class EmployeePayRollServiceTest {
         Instant endWithThread = Instant.now();
         System.out.println("Duration with thread: " + Duration.between(startWithThread, endWithThread));
         Assertions.assertEquals(7, employeePayRollDBService.countNoOfEmployees());
+    }
+
+    @Test
+    void givenDataOfMultipleEmployeesToUpdate() {
+        ArrayList<EmployeePayRollService> employees = new ArrayList<>(Arrays.asList(
+                new EmployeePayRollService(130, "Shrvan", "employee_details", "name"),
+                new EmployeePayRollService(134, "Shrvan", "employee_details", "name")));
+        Instant start = Instant.now();
+        employeePayRollService.updaateMultipleEmployees(employees);
+        Instant end = Instant.now();
+        System.out.println("Duration : " + Duration.between(start, end));
+        Instant startWithThread = Instant.now();
+        Assertions.assertEquals(2, employeePayRollService.updateultipleEmployeesWithThreads(employees));
+        Instant endWithThread = Instant.now();
+        System.out.println("Duration with thread: " + Duration.between(startWithThread, endWithThread));
+        employeePayRollDBService.getEmployeeObject(130);
+        ;
     }
 }
