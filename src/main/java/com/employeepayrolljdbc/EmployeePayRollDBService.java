@@ -2,6 +2,7 @@ package com.employeepayrolljdbc;
 
 import com.mysql.jdbc.exceptions.*;
 
+import javax.swing.plaf.nimbus.*;
 import java.awt.desktop.*;
 import java.sql.*;
 import java.time.*;
@@ -28,7 +29,7 @@ public class EmployeePayRollDBService {
     private void preparedStatementForUpdates(String tableName, String columnToBeUpdated) {
         try {
             Connection connection = this.connectToDatabase();
-            String sql = String.format("update %s set %s = ? where employee_id=?", tableName, columnToBeUpdated);
+            String sql = String.format("update %s set %s = ? where employee_id=? ", tableName, columnToBeUpdated);
             getEmployeePayRollData = connection.prepareStatement(sql);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -62,7 +63,7 @@ public class EmployeePayRollDBService {
     public ArrayList<HashMap<Integer, List<EmployeePayRollService>>> readData() {
         ArrayList<EmployeePayRollService> listOfDataObjects = new ArrayList<>();
         String sql = "select ed.*,p.net_pay,p.taxabale_pay,p.deductions,p.income_tax,edd.department_id,c.name,a.street_name,a.house_no,a.state,a.city,a.country,a.zip,a.address_type from employee_details as ed inner join payroll as p on ed.employee_id=p.employee_id   \n" +
-                " inner join employee_departments as edd on ed.employee_id=edd.employee_id inner join company as c on c.employee_id=ed.employee_id inner join address as a on a.employee_id=ed.employee_id;";
+                " inner join employee_departments as edd on ed.employee_id=edd.employee_id inner join company as c on c.employee_id=ed.employee_id inner join address as a on a.employee_id=ed.employee_id having status='Active'";
         return this.getListFromResultSet(sql);
     }
 
@@ -79,7 +80,8 @@ public class EmployeePayRollDBService {
                 double phone = resultSet.getDouble("phone");
                 String gender = resultSet.getString("gender");
                 int salary = resultSet.getInt("salary");
-                LocalDate startdate = resultSet.getDate("start_date").toLocalDate();
+                LocalDate startdate1 = resultSet.getDate("start_date").toLocalDate();
+                String startdate = startdate1.toString();
                 String nameEmployee = resultSet.getString("name");
                 int netPay = resultSet.getInt("net_pay");
                 int taxabalePay = resultSet.getInt("taxabale_pay");
@@ -135,6 +137,7 @@ public class EmployeePayRollDBService {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
         return connection;
     }
 
@@ -175,12 +178,12 @@ public class EmployeePayRollDBService {
             if (resultSet.next()) employeeID = resultSet.getInt(1);
             System.out.println("auto generated :" + employeeID);
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
             try {
                 connection.rollback();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+            throwables.printStackTrace();
         }
 
         try {
@@ -211,6 +214,7 @@ public class EmployeePayRollDBService {
                 String sqlThree = String.format("insert into departments (name,department_id) " +
                         "values ('%s',%s)", departmentName, departmentID);
                 int resultTwo = statement.executeUpdate(sqlThree);
+                if(resultTwo < 0)  throw new EmployeePayRollException("No records");
                 result = result + 1;
                 String sqlFour = String.format("insert into employee_departments (employee_id,department_id)" +
                         "values (%s,%s)", employeeID, departmentID);
@@ -224,11 +228,11 @@ public class EmployeePayRollDBService {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+                try {
+                    connection.rollback();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
         }
         try {
             ArrayList<Integer> employeeIds = new ArrayList<>();
@@ -290,7 +294,7 @@ public class EmployeePayRollDBService {
             Connection connection = this.connectToDatabase();
             Statement statement = connection.createStatement();
             String sql = String.format("select * from employee_details where start_date between cast('%s' as date) and " +
-                    "date(now())" +
+                    "date(now()) having status='Active'" +
                     "", startDate);
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
@@ -307,7 +311,8 @@ public class EmployeePayRollDBService {
     public HashMap<String, Integer> performOperationsOnSalaryOf(String operation) {
         HashMap<String, Integer> resultList = new HashMap<>();
         String sql = String.format(" select gender,%s(salary) from payroll as p " +
-                        "inner join employee_details as e on p.employee_id=e.employee_id group by gender"
+                        "inner join employee_details as e on p.employee_id=e.employee_id  " +
+                        "where status='Active' group by gender"
                 , operation);
         try {
             Connection connection = this.connectToDatabase();
@@ -325,9 +330,9 @@ public class EmployeePayRollDBService {
         return resultList;
     }
 
-    public int deleteRecordOnCaascade(int employeeID) {
+    public int deleteRecordOnCascade(int employeeID) {
         int result = 0;
-        String sql = String.format("delete from employee_details where employee_id = %s", employeeID);
+        String sql = String.format("update employee_details set status='not_active' where employee_id = %s", employeeID);
         try {
             Connection connection = this.connectToDatabase();
             Statement statement = connection.createStatement();
@@ -336,5 +341,23 @@ public class EmployeePayRollDBService {
             exception.printStackTrace();
         }
         return result;
+    }
+
+    public int countNoOfEmployees() {
+        int numberOfEmployees=0;
+        ArrayList<String> employees = new ArrayList<>();
+        String sql = "select * from employee_details;";
+        try {
+            Connection connection = this.connectToDatabase();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while(resultSet.next()) {
+                String name = resultSet.getString("name");
+                employees.add(name);
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return employees.size();
     }
 }
