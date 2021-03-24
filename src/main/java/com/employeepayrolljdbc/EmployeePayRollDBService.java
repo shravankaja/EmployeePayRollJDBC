@@ -10,6 +10,7 @@ import java.util.*;
 
 public class EmployeePayRollDBService {
     int noOfEmployees = 0;
+    private int connectionCounter=0;
     //Defining Singleton object by making a private constructor
     private static EmployeePayRollDBService employeePayRollDBService;
     private PreparedStatement getEmployeePayRollData;
@@ -116,7 +117,8 @@ public class EmployeePayRollDBService {
     }
 
 
-    public Connection connectToDatabase() {
+    public synchronized Connection connectToDatabase() {
+        connectionCounter++;
         String jdbcURL = "jdbc:mysql://localhost:3306/payroll_services?allowPublicKeyRetrieval=true&useSSL=false";
         String userName = "root";
         String password = "Addtexthere25";
@@ -130,8 +132,10 @@ public class EmployeePayRollDBService {
             throw new IllegalStateException("No drivers loaded ", e);
         }
         try {
+            System.out.println("Processing threads: "+Thread.currentThread().getName()+" Connecting to database with ID:"+connectionCounter);
             System.out.println("Connectin to " + jdbcURL);
             connection = DriverManager.getConnection(jdbcURL, userName, password);
+            System.out.println("Porcessing thread: "+Thread.currentThread().getName()+"Id "+connectionCounter+ "  "+connection);
             System.out.println(connection);
             connectionString = connection.toString();
         } catch (SQLException throwables) {
@@ -214,7 +218,7 @@ public class EmployeePayRollDBService {
                 String sqlThree = String.format("insert into departments (name,department_id) " +
                         "values ('%s',%s)", departmentName, departmentID);
                 int resultTwo = statement.executeUpdate(sqlThree);
-                if(resultTwo < 0)  throw new EmployeePayRollException("No records");
+                if (resultTwo < 0) throw new EmployeePayRollException("No records");
                 result = result + 1;
                 String sqlFour = String.format("insert into employee_departments (employee_id,department_id)" +
                         "values (%s,%s)", employeeID, departmentID);
@@ -228,11 +232,11 @@ public class EmployeePayRollDBService {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-                try {
-                    connection.rollback();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         try {
             ArrayList<Integer> employeeIds = new ArrayList<>();
@@ -344,14 +348,14 @@ public class EmployeePayRollDBService {
     }
 
     public int countNoOfEmployees() {
-        int numberOfEmployees=0;
+        int numberOfEmployees = 0;
         ArrayList<String> employees = new ArrayList<>();
         String sql = "select * from employee_details;";
         try {
             Connection connection = this.connectToDatabase();
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 String name = resultSet.getString("name");
                 employees.add(name);
             }
