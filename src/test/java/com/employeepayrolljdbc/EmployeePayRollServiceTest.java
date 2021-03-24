@@ -36,7 +36,7 @@ public class EmployeePayRollServiceTest {
     @Test
     void addNewRecord() throws SQLException, EmployeePayRollException {
         EmployeePayRollDBService employeePayRollDBService = new EmployeePayRollDBService();
-        Assertions.assertEquals(6, employeePayRollService.writeData("Tavan", 123456,
+        Assertions.assertEquals(6, employeePayRollService.writeData("Demo", 123456,
                 "2018-02-01", 55000, "M", "Development", 123, "TCS",
                 "RamNagar", "Tealanagan", "Hydderabad", "India", 50074, "Home", 456));
     }
@@ -49,7 +49,7 @@ public class EmployeePayRollServiceTest {
 
     @Test
     void givenStartDateFindNumberOfEmployeesJoined() {
-        Assertions.assertEquals(31, employeePayRollDBService
+        Assertions.assertEquals(32, employeePayRollDBService
                 .findEmployeesJoinedInSpecificDateRange("2018-01-01"));
     }
 
@@ -58,11 +58,35 @@ public class EmployeePayRollServiceTest {
         HashMap<String, Integer> list = employeePayRollService
                 .returnResultOfOperationPerformedOnSalaryBasedOnGender("avg");
         int result = list.get("M");
-        Assertions.assertEquals(54629, result);
+        Assertions.assertEquals(54642
+                , result);
     }
 
     @Test
     void deleteRecordFromDatabase() {
-        Assertions.assertEquals(1, employeePayRollService.deleteARecordromDatabase(39));
+        Assertions.assertEquals(1, employeePayRollService.deleteARecordromDatabase(47));
+    }
+
+    @Test
+    void givenMultipleRecordsShouldBeAddedToDatabaseAndRecordTimeWithOutThreading() {
+        ArrayList<EmployeePayRollService> employees = new ArrayList<>(Arrays.asList(
+                new EmployeePayRollService("Shravan",
+                        "2018-02-01", 55000, "Development", 123, 852852933,
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad","India",50047, "Home"
+                        ,"M" ,456),
+                new EmployeePayRollService("James",
+                        "2018-02-01", 51000, "Development", 123, 852852933,
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad","India",50047, "Home"
+                        ,"M" ,456),
+                new EmployeePayRollService("Mares",
+                        "2018-02-01", 57000, "Development", 123, 852852933,
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad","India",50047, "Home"
+                        ,"M" ,456)
+        ));
+        Instant start = Instant.now();
+        employeePayRollService.addMultipleEmployees(employees);
+        Instant end = Instant.now();
+        System.out.println("Duration : "+Duration.between(start,end));
+        Assertions.assertEquals(16,employeePayRollDBService.countNoOfEmployees());
     }
 }
