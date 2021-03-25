@@ -186,4 +186,22 @@ public class EmployeePayRollServiceTest {
         Response response = request.put("http://localhost:3000/employees/" + employeePayRollService1.id);
         Assertions.assertEquals(200, response.getStatusCode());
     }
+
+    @Test
+    public void givenIdWeShouldBeAbleToDeleteEmployeeBothInMemoryAndServer() {
+        EmployeePayRollService[] arrayOfEmps = getEmployeeList();
+        EmployeePayRollService employeePayRollService;
+        employeePayRollService = new EmployeePayRollService(Arrays.asList(arrayOfEmps));
+        EmployeePayRollService employeePayRollService1 = employeePayRollService.deleteEmployee(45);
+        RequestSpecification request = RestAssured.given();
+        Response response = request.delete("http://localhost:3000/employees/" + employeePayRollService1.id);
+        Assertions.assertEquals(200, response.getStatusCode());
+
+        EmployeePayRollService[] arrayOfEmpsAfterDelete = getEmployeeList();
+        EmployeePayRollService employeePayRollServiceAfterDelete;
+        employeePayRollServiceAfterDelete = new EmployeePayRollService(Arrays.asList(arrayOfEmpsAfterDelete));
+        int count = employeePayRollService.countEntriesFromJson();
+        Assertions.assertEquals(1, count);
+
+    }
 }
