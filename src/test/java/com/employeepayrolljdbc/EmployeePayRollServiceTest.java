@@ -3,6 +3,7 @@ package com.employeepayrolljdbc;
 import com.google.gson.*;
 import io.restassured.*;
 import io.restassured.response.Response;
+import io.restassured.specification.*;
 import org.junit.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Test;
@@ -133,6 +134,33 @@ public class EmployeePayRollServiceTest {
         System.out.println("Employee payroll entries in JsonServer: " + response.asString());
         EmployeePayRollService[] arrayOfEmps = new Gson().fromJson(response.asString(), EmployeePayRollService[].class);
         return arrayOfEmps;
+    }
+
+    @Test
+    void whenAddedNewRecordToJasonServerShouldMatchNumberOfEntries() {
+        EmployeePayRollService[] arrayOfEmps = getEmployeeList();
+        EmployeePayRollService employeePayRollService;
+        employeePayRollService = new EmployeePayRollService(Arrays.asList(arrayOfEmps));
+        EmployeePayRollService employeePayRollServiceObject = new EmployeePayRollService(123, "Shravan",
+                "2018-02-01", 55000, "Development", 123, 852852933,
+                "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047, "Home"
+                , "M", 456);
+        Response response = addEmployeeToPayRollData(employeePayRollServiceObject);
+        employeePayRollService.addEmployeeToList(employeePayRollServiceObject);
+        int statusCode = response.getStatusCode();
+        int count = employeePayRollService.countEntriesFromJson();
+        Assertions.assertEquals(201, statusCode);
+        Assertions.assertEquals(3, count);
+
+
+    }
+
+    private Response addEmployeeToPayRollData(EmployeePayRollService employeePayRollServiceObject) {
+        String empJson = new Gson().toJson(employeePayRollServiceObject);
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body(empJson);
+        return request.post("http://localhost:3000/employees");
     }
 
 }
