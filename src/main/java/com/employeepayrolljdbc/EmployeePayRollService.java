@@ -26,6 +26,7 @@ public class EmployeePayRollService {
     String gender;
     int houseNo;
 
+
     ArrayList<ArrayList<HashMap<Integer, List<EmployeePayRollService>>>> nestedList = new ArrayList<>();
     ArrayList<EmployeePayRollService> listOfEmployeeObjects;
     ArrayList<EmployeePayRollService> listOfEmployeeAddress;
@@ -274,12 +275,26 @@ public class EmployeePayRollService {
         return employees.size();
     }
 
+    public int getId() {
+        return id;
+    }
+
     public int countEntriesFromJson() {
         return empArray.size();
     }
 
     public void addEmployeeToList(EmployeePayRollService employeePayRollService) {
         this.empArray.add(employeePayRollService);
+    }
+
+    public EmployeePayRollService updateSalaryEmployee(int id, int salary) {
+        for (EmployeePayRollService employeePayRollService : empArray) {
+            if (employeePayRollService.getId() == id) {
+                employeePayRollService.salary = salary;
+                return employeePayRollService;
+            }
+        }
+        return null;
     }
 }
 
