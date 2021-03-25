@@ -141,26 +141,35 @@ public class EmployeePayRollServiceTest {
         EmployeePayRollService[] arrayOfEmps = getEmployeeList();
         EmployeePayRollService employeePayRollService;
         employeePayRollService = new EmployeePayRollService(Arrays.asList(arrayOfEmps));
-        EmployeePayRollService employeePayRollServiceObject = new EmployeePayRollService(123, "Shravan",
-                "2018-02-01", 55000, "Development", 123, 852852933,
-                "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047, "Home"
-                , "M", 456);
-        Response response = addEmployeeToPayRollData(employeePayRollServiceObject);
-        employeePayRollService.addEmployeeToList(employeePayRollServiceObject);
-        int statusCode = response.getStatusCode();
+        ArrayList<EmployeePayRollService> employees = new ArrayList<>(Arrays.asList(
+                new EmployeePayRollService(45, "Shravan",
+                        "2018-02-01", 55000, "Development", 123, 852852933,
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047, "Home"
+                        , "M", 456),
+                new EmployeePayRollService(54, "James",
+                        "2018-02-01", 51000, "Development", 123, 852852933,
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047,
+                        "Home", "M", 456),
+                new EmployeePayRollService(96, "Mares",
+                        "2018-02-01", 57000, "Development", 123, 852852933,
+                        "TCS", "Ramnaagar", "Tealnagnan", "Hyderabad", "India", 50047, "Home"
+                        , "M", 456)
+        ));
+        for (EmployeePayRollService employeePayRollServicelist : employees) {
+            employeePayRollService.addEmployeeToList(employeePayRollServicelist);
+        }
+        addEmployeeToPayRollData(employees);
         int count = employeePayRollService.countEntriesFromJson();
-        Assertions.assertEquals(201, statusCode);
-        Assertions.assertEquals(3, count);
-
-
+        Assertions.assertEquals(6, count);
     }
 
-    private Response addEmployeeToPayRollData(EmployeePayRollService employeePayRollServiceObject) {
-        String empJson = new Gson().toJson(employeePayRollServiceObject);
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.body(empJson);
-        return request.post("http://localhost:3000/employees");
+    private void addEmployeeToPayRollData(ArrayList<EmployeePayRollService> employeePayRollServiceObject) {
+        for (EmployeePayRollService employeePayRollService : employeePayRollServiceObject) {
+            String empJson = new Gson().toJson(employeePayRollService);
+            RequestSpecification request = RestAssured.given();
+            request.header("Content-Type", "application/json");
+            request.body(empJson);
+            request.post("http://localhost:3000/employees");
+        }
     }
-
 }
