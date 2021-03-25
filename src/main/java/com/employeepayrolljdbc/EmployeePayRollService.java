@@ -100,6 +100,30 @@ public class EmployeePayRollService {
         this.houseNo = houseNo;
     }
 
+    public EmployeePayRollService(int id, String name, String startDate, int salary, String departmentName, int departmentID,
+                                  double phone, String companyName, String street_name, String state, String city,
+                                  String country, int zip, String addressType, String gender, int houseNo) {
+
+
+        this.id = id;
+        this.name = name;
+        this.startDate = startDate;
+        this.salary = salary;
+        this.departmentName = departmentName;
+        this.departmentID = departmentID;
+        this.phone = phone;
+        this.companyName = companyName;
+        this.street_name = street_name;
+        this.state = state;
+        this.city = city;
+        this.country = country;
+        this.zip = zip;
+        this.addressType = addressType;
+        this.gender = gender;
+        this.houseNo = houseNo;
+    }
+
+
     public EmployeePayRollService(List<EmployeePayRollService> empArray) {
         this();
         this.empArray = new ArrayList<>(empArray);
@@ -254,6 +278,9 @@ public class EmployeePayRollService {
         return empArray.size();
     }
 
+    public void addEmployeeToList(EmployeePayRollService employeePayRollService) {
+        this.empArray.add(employeePayRollService);
+    }
 }
 
 
