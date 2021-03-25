@@ -5,6 +5,7 @@ import java.time.*;
 import java.util.*;
 
 public class EmployeePayRollService {
+    private List<EmployeePayRollService> empArray;
     String value;
     String columnToBeUpdated;
     String tableName;
@@ -97,6 +98,12 @@ public class EmployeePayRollService {
         this.addressType = addressType;
         this.gender = gender;
         this.houseNo = houseNo;
+    }
+
+    public EmployeePayRollService(List<EmployeePayRollService> empArray) {
+        this();
+        this.empArray = new ArrayList<>(empArray);
+
     }
 
     public int readData() {
@@ -242,6 +249,11 @@ public class EmployeePayRollService {
         }
         return employees.size();
     }
+
+    public int countEntriesFromJson() {
+        return empArray.size();
+    }
+
 }
 
 
