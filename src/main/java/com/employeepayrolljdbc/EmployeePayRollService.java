@@ -280,6 +280,7 @@ public class EmployeePayRollService {
     }
 
     public int countEntriesFromJson() {
+
         return empArray.size();
     }
 
@@ -292,6 +293,19 @@ public class EmployeePayRollService {
             if (employeePayRollService.getId() == id) {
                 employeePayRollService.salary = salary;
                 return employeePayRollService;
+            }
+        }
+        return null;
+    }
+
+    public EmployeePayRollService deleteEmployee(int id) {
+        EmployeePayRollService employeePayRollService1;
+        for (EmployeePayRollService employeePayRollService : empArray) {
+            if (employeePayRollService.getId() == id) {
+                employeePayRollService.salary = salary;
+                employeePayRollService1 = employeePayRollService;
+                employeePayRollService = null;
+                return employeePayRollService1;
             }
         }
         return null;
