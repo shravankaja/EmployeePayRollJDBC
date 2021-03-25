@@ -1,7 +1,14 @@
 package com.employeepayrolljdbc;
 
+import com.google.gson.*;
+import io.restassured.*;
+import io.restassured.response.Response;
+import org.junit.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
+import org.junit.runner.*;
 
+import java.awt.*;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
@@ -10,6 +17,7 @@ public class EmployeePayRollServiceTest {
 
     EmployeePayRollService employeePayRollService = new EmployeePayRollService();
     EmployeePayRollDBService employeePayRollDBService = new EmployeePayRollDBService();
+
 
     @Test
     void whenInitlializedProgramWeShouldBeAbleToLoadSqlDriverClass() {
@@ -108,6 +116,23 @@ public class EmployeePayRollServiceTest {
         Instant endWithThread = Instant.now();
         System.out.println("Duration with thread: " + Duration.between(startWithThread, endWithThread));
         employeePayRollDBService.getEmployeeObject(130);
-        ;
     }
+
+    @Test
+    void givenDataInJasonServerWhenRetrievedShouldMatchTheCount() {
+        EmployeePayRollService[] arrayOfEmps = getEmployeeList();
+        EmployeePayRollService employeePayRollService;
+        employeePayRollService = new EmployeePayRollService(Arrays.asList(arrayOfEmps));
+        int count = employeePayRollService.countEntriesFromJson();
+        Assertions.assertEquals(2, count);
+
+    }
+
+    private EmployeePayRollService[] getEmployeeList() {
+        Response response = RestAssured.get("http://localhost:3000/employees");
+        System.out.println("Employee payroll entries in JsonServer: " + response.asString());
+        EmployeePayRollService[] arrayOfEmps = new Gson().fromJson(response.asString(), EmployeePayRollService[].class);
+        return arrayOfEmps;
+    }
+
 }
