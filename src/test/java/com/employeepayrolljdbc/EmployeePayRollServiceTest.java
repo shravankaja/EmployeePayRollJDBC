@@ -172,4 +172,18 @@ public class EmployeePayRollServiceTest {
             request.post("http://localhost:3000/employees");
         }
     }
+
+    @Test
+    public void givenSalaryShouldBeUpdatedInMemeoryAsWellAsServer() {
+        EmployeePayRollService[] arrayOfEmps = getEmployeeList();
+        EmployeePayRollService employeePayRollService;
+        employeePayRollService = new EmployeePayRollService(Arrays.asList(arrayOfEmps));
+        EmployeePayRollService employeePayRollService1 = employeePayRollService.updateSalaryEmployee(96, 45000);
+        String empJson = new Gson().toJson(employeePayRollService1);
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body(empJson);
+        Response response = request.put("http://localhost:3000/employees/" + employeePayRollService1.id);
+        Assertions.assertEquals(200, response.getStatusCode());
+    }
 }
